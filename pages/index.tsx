@@ -16,9 +16,8 @@ const Home: NextPage = () => {
         </div>
       </div>
     );
-  } else {
-    return <div>Logged in</div>;
   }
+  return <div>Logged in {session.user.email}</div>;
 };
 
 export default Home;
