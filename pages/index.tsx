@@ -9,7 +9,7 @@ const Home: NextPage = () => {
         <div className="text-center w-full">
           <button
             onClick={() => signIn("google")}
-            className="bg-white p-3 rounded-lg"
+            className="bg-white p-2 px-4 rounded-lg"
           >
             Login with google
           </button>
