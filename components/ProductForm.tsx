@@ -2,16 +2,18 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 
-const ProductForm: React.FC<{
-  _id;
-  title: string;
-  description: string;
-  price: string;
-}> = ({
+interface ProductFormProps {
+  _id?: string;
+  title?: string;
+  description?: string;
+  price?: string;
+}
+
+const ProductForm: React.FC<ProductFormProps> = ({
   _id,
-  title: initialTitle,
-  description: initialDescription,
-  price: initialPrice,
+  title: initialTitle = "",
+  description: initialDescription = "",
+  price: initialPrice = "",
 }) => {
   const [title, setTitle] = useState(initialTitle || "");
   const [description, setDescription] = useState(initialDescription || "");
