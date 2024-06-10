@@ -27,8 +27,8 @@ const Products: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {products.map((product) => (
-            <tr>
+          {products.map((product, index) => (
+            <tr key={product.id || index}>
               <td>{product.title}</td>
               <td>buttons</td>
             </tr>
