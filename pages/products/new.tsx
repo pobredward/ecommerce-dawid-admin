@@ -1,7 +1,6 @@
 import React from "react";
 import Layout from "../../components/Layout";
 import axios from "axios";
-import { redirect } from "next/navigation";
 import { useRouter } from "next/router";
 
 const NewProduct: React.FC = () => {
