@@ -9,7 +9,7 @@ const Products: React.FC = () => {
     axios.get("/api/products").then((response) => {
       setProducts(response.data);
     });
-  });
+  }, []);
 
   return (
     <Layout>
