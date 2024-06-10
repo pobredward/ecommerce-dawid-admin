@@ -22,7 +22,7 @@ const DeleteProductPage = () => {
   };
 
   const deleteProduct = async () => {
-    await axios.delete("/api/products?=id" + id);
+    await axios.delete("/api/products?id=" + id);
     goBack();
   };
 
