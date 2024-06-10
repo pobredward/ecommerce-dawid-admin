@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
 import Product from "../../models/Product";
+import mongooseConnect from "../../lib/mongoose";
 
 const handle = async (req, res) => {
   const { method } = req;
-  mongoose.connect(process.env.MONGODB_URI);
+  await mongooseConnect();
   if (method === "POST") {
     const { title, description, price } = req.body;
     const productDoc = await Product.create({
