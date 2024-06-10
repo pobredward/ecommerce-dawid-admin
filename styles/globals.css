@@ -34,3 +34,4 @@ table.basic thead tr td {
 table.basic tr td {
   @apply border border-blue-200 p-1;
 }
+
