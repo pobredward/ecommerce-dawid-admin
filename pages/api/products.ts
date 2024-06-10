@@ -7,10 +7,13 @@ const handle = async (req, res) => {
   // mongoose.connect(process.env.MONGODB_URI);
   mongoose.Promise = clientPromise;
   if (method === "POST") {
-    Product.create({
-      
-    })
-    res.json("post");
+    const { title, description, price } = req.body;
+    const productDoc = await Product.create({
+      title,
+      description,
+      price,
+    });
+    res.json(productDoc);
   }
 };
 
