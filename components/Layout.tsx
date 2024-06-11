@@ -21,7 +21,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="bg-blue-900 min-h-screen flex">
       <Nav></Nav>
-      <div className="bg-white flex-grow mt-2 mr-2 mb-2 rounded-lg p-4">
+      <div className="bg-white flex-grow m-2 ml-0 rounded-lg p-4">
         {children}
       </div>
     </div>
