@@ -8,7 +8,6 @@ const Nav: React.FC = () => {
   const router = useRouter();
   const { pathname } = router;
 
-  console.log(router);
   return (
     <aside className="text-white p-4 pr-0">
       <Link href={"/"} className="flex gap-1 mb-4 mr-4">
