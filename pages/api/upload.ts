@@ -1,7 +1,7 @@
 import multiparty from "multiparty";
 
 const handle = async (req, res) => {
-  const form = multiparty.Form();
+  const form = new multiparty.Form();
   form.parse(req, (err, fields, files) => {
     if (err) throw err;
     console.log('length:', files.length);
