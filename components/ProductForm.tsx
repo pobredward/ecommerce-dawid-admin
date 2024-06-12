@@ -42,13 +42,24 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   const uploadImages = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target?.files;
+
     if (files?.length > 0) {
       const data = new FormData();
+
       for (let i = 0; i < files.length; i++) {
-        data.append("file", files[i]);
+        data.append("files", files[i]);
       }
-      const res = await axios.post("/api/upload", data);
-      console.log(res.data);
+
+      try {
+        await axios.post("/api/upload", data, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        alert("Upload Success");
+      } catch (error) {
+        console.error("Upload Error:", error);
+      }
     }
   };
 
