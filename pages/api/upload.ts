@@ -6,7 +6,7 @@ const handle = async (req, res) => {
     if (err) throw err;
     console.log('length:', files.length);
     console.log(fields);
-    res.json("ok");
+    return res.json("ok");
   });
 };
 
