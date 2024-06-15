@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import Spinner from "./Spinner";
 
 interface ProductFormProps {
   _id?: string;
   title?: string;
   description?: string;
   price?: string;
-  images?: string;
+  images?: [];
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({
@@ -15,17 +16,19 @@ const ProductForm: React.FC<ProductFormProps> = ({
   title: initialTitle = "",
   description: initialDescription = "",
   price: initialPrice = "",
-  images,
+  images: initialImage = [],
 }) => {
   const [title, setTitle] = useState(initialTitle || "");
   const [description, setDescription] = useState(initialDescription || "");
   const [price, setPrice] = useState(initialPrice || "");
+  const [images, setImages] = useState(initialImage || []);
+  const [isUploading, setIsUploading] = useState(false);
   const [goToProducts, setGoToProducts] = useState(false);
   const router = useRouter();
 
   const saveProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data = { title, description, price };
+    const data = { title, description, price, images };
     if (_id) {
       // update
       await axios.put("/api/products", { ...data, _id });
@@ -44,6 +47,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const files = e.target?.files;
 
     if (files?.length > 0) {
+      setIsUploading(true);
       const data = new FormData();
 
       for (let i = 0; i < files.length; i++) {
@@ -51,15 +55,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
       }
 
       try {
-        await axios.post("/api/upload", data, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+        const res = await axios.post("/api/upload", data);
+        setImages((oldImages) => {
+          return [...oldImages, ...res.data.links];
         });
-        alert("Upload Success");
       } catch (error) {
         console.error("Upload Error:", error);
       }
+      setIsUploading(false);
     }
   };
 
@@ -73,7 +76,18 @@ const ProductForm: React.FC<ProductFormProps> = ({
         onChange={(e) => setTitle(e.target.value)}
       />
       <label>Photos</label>
-      <div>
+      <div className="mb-2 flex flex-wrap gap-2">
+        {!!images?.length &&
+          images.map((link) => (
+            <div key={link} className="h-32">
+              <img src={link} alt="" className="rounded-lg"></img>
+            </div>
+          ))}
+        {isUploading && (
+          <div className="h-24 flex items-center">
+            <Spinner />
+          </div>
+        )}
         <label className="w-32 h-32 cursor-pointer flex flex-col justify-center items-center gap-1 text-sm text-gray-500 rounded-lg bg-gray-100">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -92,7 +106,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
           <div>Upload</div>
           <input type="file" onChange={uploadImages} className="hidden"></input>
         </label>
-        {!images?.length && <div>No photos in this product</div>}
       </div>
       <label>Description</label>
       <textarea
