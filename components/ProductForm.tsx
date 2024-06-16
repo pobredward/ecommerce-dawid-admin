@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import Spinner from "./Spinner";
+import { ReactSortable } from "react-sortablejs";
 
 interface ProductFormProps {
   _id?: string;
@@ -51,7 +52,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       const data = new FormData();
 
       for (let i = 0; i < files.length; i++) {
-        data.append("files", files[i]);
+        data.append("file", files[i]); // Ensure the field name matches the backend
       }
 
       try {
@@ -59,11 +60,17 @@ const ProductForm: React.FC<ProductFormProps> = ({
         setImages((oldImages) => {
           return [...oldImages, ...res.data.links];
         });
+        e.target.value = "";
       } catch (error) {
         console.error("Upload Error:", error);
       }
       setIsUploading(false);
     }
+  };
+
+  const updateImagesOrder = (newOrder: string[]) => {
+    console.log(newOrder);
+    setImages(newOrder);
   };
 
   return (
@@ -77,12 +84,18 @@ const ProductForm: React.FC<ProductFormProps> = ({
       />
       <label>Photos</label>
       <div className="mb-2 flex flex-wrap gap-2">
-        {!!images?.length &&
-          images.map((link) => (
-            <div key={link} className="h-32">
-              <img src={link} alt="" className="rounded-lg"></img>
-            </div>
-          ))}
+        <ReactSortable
+          list={images}
+          className="flex flex-wrap gap-1"
+          setList={updateImagesOrder}
+        >
+          {!!images?.length &&
+            images.map((link) => (
+              <div key={link} className="h-32">
+                <img src={link} alt="" className="rounded-lg"></img>
+              </div>
+            ))}
+        </ReactSortable>
         {isUploading && (
           <div className="h-24 flex items-center">
             <Spinner />
@@ -93,18 +106,23 @@ const ProductForm: React.FC<ProductFormProps> = ({
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            stroke-width="1.5"
+            strokeWidth="1.5"
             stroke="currentColor"
             className="size-6"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
             />
           </svg>
           <div>Upload</div>
-          <input type="file" onChange={uploadImages} className="hidden"></input>
+          <input
+            type="file"
+            onChange={uploadImages}
+            className="hidden"
+            multiple
+          />
         </label>
       </div>
       <label>Description</label>
