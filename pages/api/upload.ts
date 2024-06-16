@@ -6,6 +6,10 @@ import mime from "mime-types";
 
 const bucketName = "military-protein-test";
 
+export const config = {
+  api: { bodyParser: false },
+};
+
 const handle = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const form = new multiparty.Form();
@@ -18,11 +22,9 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
       },
     );
 
-    if (files && files.files) {
-      console.log("length:", Array.isArray(files.file) ? files.file.length : 1);
-    } else {
+    if (!files || !files.file || files.file.length === 0) {
       console.log("No files uploaded");
-      res.status(400).json({ error: "No files uploaded" });
+      return res.status(400).json({ error: "No files uploaded" });
     }
 
     const client = new S3Client({
@@ -34,9 +36,10 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     const links = [];
-    for (let i = 0; i < files.files.length; i++) {
-      const file = files.files[i];
-      const ext = file.originalFilename.split("").pop();
+    const uploadedFiles = files.file; // Assuming the input field name is "file"
+
+    for (const file of uploadedFiles) {
+      const ext = file.originalFilename.split(".").pop();
       const newFilename = Date.now() + "." + ext;
       await client.send(
         new PutObjectCommand({
@@ -44,7 +47,8 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
           Key: newFilename,
           Body: fs.readFileSync(file.path),
           ACL: "public-read",
-          ContentType: mime.lookup(file.path),
+          ContentType:
+            mime.lookup(file.originalFilename) || "application/octet-stream",
         }),
       );
       const link = `https://${bucketName}.s3.amazonaws.com/${newFilename}`;
@@ -56,10 +60,6 @@ const handle = async (req: NextApiRequest, res: NextApiResponse) => {
     console.error("Error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-};
-
-export const config = {
-  api: { bodyParser: false },
 };
 
 export default handle;
