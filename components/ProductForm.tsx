@@ -10,6 +10,7 @@ interface ProductFormProps {
   description?: string;
   price?: string;
   images?: [];
+  category?: string;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({
@@ -18,18 +19,27 @@ const ProductForm: React.FC<ProductFormProps> = ({
   description: initialDescription = "",
   price: initialPrice = "",
   images: initialImage = [],
+  category: initialCategory = "",
 }) => {
   const [title, setTitle] = useState(initialTitle || "");
   const [description, setDescription] = useState(initialDescription || "");
+  const [category, setCategory] = useState(initialCategory || "");
   const [price, setPrice] = useState(initialPrice || "");
   const [images, setImages] = useState(initialImage || []);
   const [isUploading, setIsUploading] = useState(false);
   const [goToProducts, setGoToProducts] = useState(false);
+  const [categories, setCategories] = useState([]);
   const router = useRouter();
+
+  React.useEffect(() => {
+    axios.get("/api/categories").then((result) => {
+      setCategories(result.data);
+    });
+  }, []);
 
   const saveProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data = { title, description, price, images };
+    const data = { title, description, price, images, category };
     if (_id) {
       // update
       await axios.put("/api/products", { ...data, _id });
@@ -82,6 +92,12 @@ const ProductForm: React.FC<ProductFormProps> = ({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
+      <label>Category</label>
+      <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <option value="">Uncategorized</option>
+        {categories.length > 0 &&
+          categories.map((c) => <option value={c._id}>{c.name}</option>)}
+      </select>
       <label>Photos</label>
       <div className="mb-2 flex flex-wrap gap-2">
         <ReactSortable
