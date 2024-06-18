@@ -6,15 +6,32 @@ const handle = async (req, res) => {
   await mongooseConnect();
 
   if (method === "GET") {
-    res.json(await Category.find());
+    res.json(await Category.find().populate("parent"));
   }
 
   if (method === "POST") {
-    const { name } = req.body;
+    const { name, parent } = req.body;
     const categoryDoc = await Category.create({
       name,
+      parent: parent || null,
     });
     res.json(categoryDoc);
+  }
+
+  if (method === "PUT") {
+    const { _id, name, parent } = req.body;
+    const categoryDoc = await Category.updateOne({_id}, {
+      name,
+      parent: parent || null,
+    });
+    res.json(categoryDoc);
+  }
+
+  if (method === "DELETE") {
+    if (req.query?._id) {
+      await Category.deleteOne({ _id: req.query?._id });
+      res.json(true);
+    }
   }
 };
 
