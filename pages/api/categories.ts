@@ -20,10 +20,13 @@ const handle = async (req, res) => {
 
   if (method === "PUT") {
     const { _id, name, parent } = req.body;
-    const categoryDoc = await Category.updateOne({_id}, {
-      name,
-      parent: parent || null,
-    });
+    const categoryDoc = await Category.updateOne(
+      { _id },
+      {
+        name,
+        parent: parent || null,
+      },
+    );
     res.json(categoryDoc);
   }
 
