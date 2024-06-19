@@ -3,24 +3,38 @@ import Layout from "../components/Layout";
 import axios from "axios";
 import Swal from "sweetalert2";
 
+interface Category {
+  _id: string;
+  name: string;
+  parent?: Category;
+  properties?: Property[];
+}
+
+interface Property {
+  name: string;
+  values: string;
+}
+
 const Categories: React.FC = () => {
-  const [editedCategory, setEditedCategory] = React.useState(null);
-  const [name, setName] = React.useState("");
+  const [editedCategory, setEditedCategory] = React.useState<Category | null>(
+    null,
+  );
+  const [name, setName] = React.useState<string>("");
   const [parentCategory, setParentCategory] = React.useState("");
-  const [categories, setCategories] = React.useState([]);
-  const [properties, setProperties] = React.useState([]);
+  const [categories, setCategories] = React.useState<Category[]>([]);
+  const [properties, setProperties] = React.useState<Property[]>([]);
 
   React.useEffect(() => {
     fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
-    axios.get("/api/categories").then((result) => {
+    axios.get<Category[]>("/api/categories").then((result) => {
       setCategories(result.data);
     });
   };
 
-  const saveCategory = async (e) => {
+  const saveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     const data = {
       name,
@@ -33,16 +47,19 @@ const Categories: React.FC = () => {
       await axios.post("/api/categories", data);
     }
     setName("");
+    setParentCategory("");
+    setProperties([]);
     fetchCategories();
   };
 
-  const editCategory = async (category) => {
+  const editCategory = (category: Category) => {
     setEditedCategory(category);
     setName(category.name);
-    setParentCategory(category.parent?._id);
+    setParentCategory(category.parent?._id || "");
+    setProperties(category.properties || []);
   };
 
-  const deleteCategory = async (category) => {
+  const deleteCategory = (category: Category) => {
     Swal.fire({
       title: "Are you sure?",
       text: `Do you want to delete ${category.name}?`,
@@ -62,6 +79,31 @@ const Categories: React.FC = () => {
   const addProperty = () => {
     setProperties((prev) => {
       return [...prev, { name: "", values: "" }];
+    });
+    console.log(properties);
+  };
+
+  const handlePropertyNameChange = (index: number, newName: string) => {
+    setProperties((prev) => {
+      const properties = [...prev];
+      properties[index] = { ...properties[index], name: newName };
+      return properties;
+    });
+  };
+
+  const handlePropertyValuesChange = (index: number, newValues: string) => {
+    setProperties((prev) => {
+      const properties = [...prev];
+      properties[index] = { ...properties[index], values: newValues };
+      return properties;
+    });
+  };
+
+  const removeProperty = (indexToRemove: number) => {
+    setProperties((prev) => {
+      return [...prev].filter((p, pIndex) => {
+        return pIndex !== indexToRemove;
+      });
     });
   };
 
@@ -99,14 +141,37 @@ const Categories: React.FC = () => {
           <button
             onClick={addProperty}
             type="button"
-            className="btn-default text-sm"
+            className="btn-default text-sm mb-2"
           >
             Add new property
           </button>
           {properties.length > 0 &&
-            properties.map((property) => (
-              <div className="flex gap-1">
-                <input type="text"></input>
+            properties.map((property, index) => (
+              <div key={index} className="flex gap-1 mb-2">
+                <input
+                  className="mb-0"
+                  type="text"
+                  value={property.name}
+                  onChange={(e) =>
+                    handlePropertyNameChange(index, e.target.value)
+                  }
+                  placeholder="property name ex) color"
+                ></input>
+                <input
+                  className="mb-0"
+                  type="text"
+                  value={property.values}
+                  onChange={(e) =>
+                    handlePropertyValuesChange(index, e.target.value)
+                  }
+                  placeholder="values, comma separated"
+                ></input>
+                <button
+                  onClick={() => removeProperty(index)}
+                  className="btn-default"
+                >
+                  Remove
+                </button>
               </div>
             ))}
         </div>
