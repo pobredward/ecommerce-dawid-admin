@@ -29,9 +29,12 @@ const Categories: React.FC = () => {
   }, []);
 
   const fetchCategories = async () => {
-    axios.get<Category[]>("/api/categories").then((result) => {
+    try {
+      const result = await axios.get<Category[]>("/api/categories");
       setCategories(result.data);
-    });
+    } catch (error) {
+      console.error("Failed to fetch categories", error);
+    }
   };
 
   const saveCategory = async (e: React.FormEvent) => {
@@ -39,6 +42,7 @@ const Categories: React.FC = () => {
     const data = {
       name,
       parent: parentCategory || null,
+      properties,
     };
     if (editedCategory) {
       await axios.put("/api/categories", { ...data, _id: editedCategory._id });
